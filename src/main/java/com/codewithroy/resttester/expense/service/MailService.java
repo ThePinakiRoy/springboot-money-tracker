@@ -33,7 +33,7 @@ public class MailService {
             log.info("Mail Sent successfully");
         } catch (MailException e) {
             e.printStackTrace();
-            throw new ExpenseException("Exception occured while sending auth mail to " + emailNotification.getRecipient() );
+            throw new ExpenseException("Exception while sending auth mail to " + emailNotification.getRecipient() );
 
         }
     }

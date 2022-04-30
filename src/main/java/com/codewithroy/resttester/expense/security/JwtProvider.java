@@ -1,9 +1,11 @@
 package com.codewithroy.resttester.expense.security;
 
 import com.codewithroy.resttester.expense.web.exception.ExpenseException;
-import com.codewithroy.resttester.expense.model.Person;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -11,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
+
+import static io.jsonwebtoken.Jwts.parser;
 
 
 @Service
@@ -30,9 +34,9 @@ public class JwtProvider {
     }
     
     public String generateToken(Authentication authentication) {
-        Person principle = (Person) authentication.getPrincipal();
+        User principle = (User) authentication.getPrincipal();
         return Jwts.builder()
-                .setSubject(principle.getUserName())
+                .setSubject(principle.getUsername())
                 .signWith(getCustomPrivateKey())
                 .compact();
                 
@@ -44,5 +48,26 @@ public class JwtProvider {
         } catch (UnrecoverableKeyException | KeyStoreException | NoSuchAlgorithmException e) {
             throw new ExpenseException("Exception occurred while getting key" + e);
         }
+    }
+
+    public boolean validateToken(String jwt) {
+        parseToken(jwt);
+        return true;
+    }
+
+    private PublicKey getPublicKey() {
+       try {
+           return keyStore.getCertificate("roys").getPublicKey();
+       } catch (KeyStoreException e) {
+           throw new ExpenseException("Exception while fetching public key from keystore " + e);
+       }
+    }
+
+    public String getUserNameFromToken(String token) {
+        return parseToken(token).getBody().getSubject();
+    }
+
+    private Jws<Claims> parseToken(String token) {
+        return parser().setSigningKey(getPublicKey()).parseClaimsJws(token);
     }
 }

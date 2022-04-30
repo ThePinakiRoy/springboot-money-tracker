@@ -8,8 +8,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableAsync
-@EnableWebMvc
-@EnableSwagger2
 public class RestTesterApplication {
 
 	public static void main(String[] args) {

@@ -8,11 +8,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
 
-    @GetMapping
+    @GetMapping("/home")
     public String main(Model model) {
-        model.addAttribute("appName", "Hello World");
+        model.addAttribute("appName", "Hello World post reload");
         return "home";
     }
 
+    @GetMapping()
+    public String auth() {
+        return "auth";
+    }
 
 }

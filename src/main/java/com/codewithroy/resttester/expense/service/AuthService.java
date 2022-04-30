@@ -1,4 +1,6 @@
 package com.codewithroy.resttester.expense.service;
+import com.codewithroy.resttester.expense.constants.ExpenseConstants;
+import com.codewithroy.resttester.expense.util.ConfigUtility;
 import com.codewithroy.resttester.expense.web.dto.AuthRequest;
 import com.codewithroy.resttester.expense.web.dto.AuthResponse;
 import com.codewithroy.resttester.expense.web.exception.ExpenseException;
@@ -33,6 +35,7 @@ public class AuthService {
     private final MailService mailService;
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
+    private final ConfigUtility configUtility;
 
 
     @Transactional
@@ -46,11 +49,13 @@ public class AuthService {
         personRepository.save(person);
 
         String token = generateAuthToken(person);
-        mailService.sendMail(new EmailNotification(person.getEmail(), "Please Activate Your Account",
-                "Hello "+ person.getName() +"\n,"
+        log.info("token is " + token);
+        mailService.sendMail(new EmailNotification(person.getEmail(), ExpenseConstants.ACTIVATION_MAIL_SUBJECT_LINE,
+                "Hello "+ person.getName() +",\n"
                         +"Thank you for signing up to expense tracker,\n"+
                 "Please click on the below link to activate your account.\n"+
-                "http://localhost:9000/api/auth/verify-account/" + token));
+                        configUtility.getProperty(ExpenseConstants.BACK_DOMAIN_URL) +
+                        ExpenseConstants.ACTIVATION_MAIL_URL_PATTERN + token));
     }
 
     private String generateAuthToken(Person person) {
